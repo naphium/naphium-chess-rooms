@@ -88,3 +88,14 @@
   color: var(--piece-black);
   text-shadow: 0 1px 0 oklch(1 0 0 / 0.25), 0 2px 3px oklch(0 0 0 / 0.4);
 }
+
+/* Board themes: override square tokens */
+.board-brown { --sq-light: oklch(0.86 0.045 82); --sq-dark: oklch(0.55 0.07 60); }
+.board-green { --sq-light: oklch(0.92 0.04 110); --sq-dark: oklch(0.58 0.09 140); }
+.board-blue { --sq-light: oklch(0.9 0.03 230); --sq-dark: oklch(0.6 0.07 245); }
+.board-ice { --sq-light: oklch(0.95 0.015 220); --sq-dark: oklch(0.72 0.05 225); }
+.board-coral { --sq-light: oklch(0.92 0.03 60); --sq-dark: oklch(0.66 0.11 30); }
+.board-slate { --sq-light: oklch(0.78 0.01 250); --sq-dark: oklch(0.48 0.015 250); }
+
+@keyframes clock-pulse { 50% { opacity: 0.55; } }
+@utility animate-low-time { animation: clock-pulse 1s ease-in-out infinite; }

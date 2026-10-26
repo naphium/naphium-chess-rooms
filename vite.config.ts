@@ -12,4 +12,10 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // Pre-bundle these up front so a mid-session re-optimization can't load two React copies.
+    optimizeDeps: {
+      include: ["chess.js", "@radix-ui/react-popover", "@radix-ui/react-switch", "@radix-ui/react-slider"],
+    },
+  },
 });

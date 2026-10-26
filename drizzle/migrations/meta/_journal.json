@@ -8,6 +8,13 @@
       "when": 1793019532971,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793020171001,
+      "tag": "0001_advanced_play",
+      "breakpoints": true
     }
   ]
 }

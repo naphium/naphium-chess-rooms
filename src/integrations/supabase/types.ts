@@ -43,30 +43,72 @@ export type Database = {
       games: {
         Row: {
           black_joined: boolean
+          black_ms: number
+          black_name: string | null
+          draw_offer: string | null
           fen: string
           id: string
+          increment_ms: number
+          initial_ms: number
           last_move: Json | null
           pgn: string
+          ply: number
+          reason: string | null
+          rematch_id: string | null
+          result: string | null
+          status: string
+          takeback_offer: string | null
+          turn_started_at: string | null
           updated_at: string
           white_joined: boolean
+          white_ms: number
+          white_name: string | null
         }
         Insert: {
           black_joined?: boolean
+          black_ms?: number
+          black_name?: string | null
+          draw_offer?: string | null
           fen?: string
           id: string
+          increment_ms?: number
+          initial_ms?: number
           last_move?: Json | null
           pgn?: string
+          ply?: number
+          reason?: string | null
+          rematch_id?: string | null
+          result?: string | null
+          status?: string
+          takeback_offer?: string | null
+          turn_started_at?: string | null
           updated_at?: string
           white_joined?: boolean
+          white_ms?: number
+          white_name?: string | null
         }
         Update: {
           black_joined?: boolean
+          black_ms?: number
+          black_name?: string | null
+          draw_offer?: string | null
           fen?: string
           id?: string
+          increment_ms?: number
+          initial_ms?: number
           last_move?: Json | null
           pgn?: string
+          ply?: number
+          reason?: string | null
+          rematch_id?: string | null
+          result?: string | null
+          status?: string
+          takeback_offer?: string | null
+          turn_started_at?: string | null
           updated_at?: string
           white_joined?: boolean
+          white_ms?: number
+          white_name?: string | null
         }
         Relationships: []
       }
@@ -75,9 +117,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_takeback: {
+        Args: {
+          p_fen: string
+          p_id: string
+          p_last: Json
+          p_pgn: string
+          p_ply: number
+          p_token: string
+        }
+        Returns: boolean
+      }
+      check_flag: {
+        Args: { g: Database["public"]["Tables"]["games"]["Row"] }
+        Returns: boolean
+      }
+      claim_timeout: { Args: { p_id: string }; Returns: boolean }
       create_game: {
         Args: { p_id: string; p_token: string }
         Returns: undefined
+      }
+      enter_game: {
+        Args: { p_id: string; p_name: string; p_token: string }
+        Returns: string
+      }
+      game_action: {
+        Args: { p_action: string; p_id: string; p_token: string }
+        Returns: boolean
       }
       join_game: { Args: { p_id: string; p_token: string }; Returns: string }
       make_move: {
@@ -91,6 +157,35 @@ export type Database = {
         }
         Returns: boolean
       }
+      new_game: {
+        Args: {
+          p_color: string
+          p_id: string
+          p_inc: number
+          p_initial: number
+          p_name: string
+          p_token: string
+        }
+        Returns: string
+      }
+      play_move: {
+        Args: {
+          p_fen: string
+          p_id: string
+          p_last: Json
+          p_pgn: string
+          p_prev_fen: string
+          p_reason: string
+          p_result: string
+          p_token: string
+        }
+        Returns: boolean
+      }
+      request_rematch: {
+        Args: { p_id: string; p_new_id: string; p_token: string }
+        Returns: string
+      }
+      seat_color: { Args: { p_id: string; p_token: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
