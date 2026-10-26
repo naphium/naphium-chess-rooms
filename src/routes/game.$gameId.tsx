@@ -100,7 +100,7 @@ function GamePage() {
     });
     const n = getName();
     setNameInput(n);
-    void enter(n);
+    void enter(""); // never auto-join: always confirm the name first
     const channel = supabase
       .channel(`game-${gameId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "games", filter: `id=eq.${gameId}` }, (p) =>
