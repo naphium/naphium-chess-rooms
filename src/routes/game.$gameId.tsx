@@ -160,7 +160,7 @@ function GamePage() {
   useEffect(() => {
     if (clockRunning && turnMs <= 0 && Date.now() - claimed.current > 1500) {
       claimed.current = Date.now();
-      void supabase.rpc("claim_timeout", { p_id: gameId });
+      void supabase.rpc("claim_timeout", { p_id: gameId }).then(() => undefined);
     }
   }, [clockRunning, turnMs, gameId]);
 
@@ -220,7 +220,9 @@ function GamePage() {
     setSelected(piece && piece.color === myColor && selected !== sq ? sq : null);
   }
 
-  const action = (a: string) => supabase.rpc("game_action", { p_id: gameId, p_token: getPlayerToken(), p_action: a });
+  const action = async (a: string) => {
+    await supabase.rpc("game_action", { p_id: gameId, p_token: getPlayerToken(), p_action: a });
+  };
 
   async function acceptTakeback() {
     if (!game || !game.takeback_offer) return;
