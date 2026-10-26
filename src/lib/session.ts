@@ -16,5 +16,5 @@ export function newGameId(): string {
   const chars = "abcdefghijkmnpqrstuvwxyz23456789";
   const pick = (n: number) =>
     Array.from(crypto.getRandomValues(new Uint8Array(n)), (b) => chars[b % chars.length]).join("");
-  return `${pick(3)}-${pick(3)}`;
+  return pick(5);
 }

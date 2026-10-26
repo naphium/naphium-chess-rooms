@@ -32,7 +32,7 @@ type Role = "white" | "black" | "spectator";
 type GameRow = {
   id: string; fen: string; pgn: string; last_move: { from: string; to: string } | null;
   white_joined: boolean; black_joined: boolean; white_name: string | null; black_name: string | null;
-  initial_ms: number; increment_ms: number; white_ms: number; black_ms: number; turn_started_at: string | null;
+  initial_ms: number; increment_ms: number; white_ms: number; black_ms: number; turn_started_at: string | null; updated_at: string;
   ply: number; status: string; result: string | null; reason: string | null;
   draw_offer: string | null; takeback_offer: string | null; rematch_id: string | null;
 };
@@ -75,6 +75,7 @@ function GamePage() {
   const chatChannel = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const prevPly = useRef<number | null>(null);
   const claimed = useRef(0);
+  const skew = useRef(0); // server time minus local time
 
   async function enter(name: string) {
     const { data: r } = await supabase.rpc("enter_game", { p_id: gameId, p_token: getPlayerToken(), p_name: name });
@@ -93,13 +94,22 @@ function GamePage() {
     setViewPly(null);
     setChat([]);
     prevPly.current = null;
+    const t0 = Date.now();
+    void supabase.rpc("server_now").then(({ data }) => {
+      if (data) skew.current = Date.parse(data as string) - (t0 + Date.now()) / 2;
+    });
     const n = getName();
     setNameInput(n);
     void enter(n);
     const channel = supabase
       .channel(`game-${gameId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "games", filter: `id=eq.${gameId}` }, (p) =>
-        setGame(p.new as GameRow),
+        setGame((cur) => {
+          const n = p.new as GameRow;
+          // ignore stale/out-of-order updates
+          if (cur && Date.parse(n.updated_at) < Date.parse(cur.updated_at)) return cur;
+          return n;
+        }),
       )
       .subscribe();
     const room = supabase.channel(`room-${gameId}`, { config: { presence: { key: getPlayerToken() } } });
@@ -150,7 +160,7 @@ function GamePage() {
 
   // clocks
   const clockRunning = !!game && active && game.initial_ms > 0 && game.ply >= 2 && !!game.turn_started_at;
-  const elapsed = clockRunning ? now - Date.parse(game!.turn_started_at!) : 0;
+  const elapsed = clockRunning ? Math.max(0, now + skew.current - Date.parse(game!.turn_started_at!)) : 0;
   const clockFor = (c: "w" | "b") => {
     if (!game) return 0;
     const base = c === "w" ? game.white_ms : game.black_ms;
@@ -191,7 +201,19 @@ function GamePage() {
     else if (next.isThreefoldRepetition()) { result = "1/2-1/2"; reason = "repetition"; }
     else if (next.isDraw()) { result = "1/2-1/2"; reason = "fifty"; }
     const prev = game;
-    setGame({ ...game, fen: next.fen(), pgn: next.pgn(), last_move: { from, to } });
+    // optimistic: stop my clock immediately and start the opponent's
+    const mover = game.fen.split(" ")[1] as "w" | "b";
+    const timed = game.initial_ms > 0;
+    const spent = timed && game.ply >= 2 && game.turn_started_at
+      ? Math.max(0, Date.now() + skew.current - Date.parse(game.turn_started_at)) : 0;
+    const bonus = timed && game.ply >= 2 ? game.increment_ms : 0;
+    const key = mover === "w" ? "white_ms" : "black_ms";
+    setGame({
+      ...game, fen: next.fen(), pgn: next.pgn(), last_move: { from, to }, ply: game.ply + 1,
+      turn_started_at: new Date(Date.now() + skew.current).toISOString(),
+      [key]: timed ? game[key] - spent + bonus : game[key],
+      ...(result ? { status: "over", result, reason } : {}),
+    });
     const { data } = await supabase.rpc("play_move", {
       p_id: gameId, p_token: getPlayerToken(), p_prev_fen: prev.fen, p_fen: next.fen(), p_pgn: next.pgn(),
       p_last: { from, to }, p_result: result as string, p_reason: reason as string,
@@ -363,7 +385,7 @@ function GamePage() {
         <Link to="/" className="font-display text-2xl">Naphium <span className="italic text-primary">Chess</span></Link>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {game && <span className="hidden sm:inline">{timeLabel(game.initial_ms, game.increment_ms)} · {category(game.initial_ms, game.increment_ms)}</span>}
-          <span className="rounded-full border border-border px-3 py-1 font-mono">{gameId}</span>
+          <span className="rounded-full border border-border px-2 py-0.5 font-mono text-xs">{gameId}</span>
           <span title="People here">👁 {watchers}</span>
         </div>
       </header>

@@ -186,6 +186,7 @@ export type Database = {
         Returns: string
       }
       seat_color: { Args: { p_id: string; p_token: string }; Returns: string }
+      server_now: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
