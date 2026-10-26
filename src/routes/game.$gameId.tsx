@@ -173,7 +173,7 @@ function GamePage() {
       <main className="mx-auto grid w-full max-w-6xl flex-1 gap-8 px-4 lg:grid-cols-[1fr_320px]">
         <div className="mx-auto w-full max-w-[640px]">
           <CapRow pieces={topCaps} cls={flipped ? "piece-black" : "piece-white"} adv={topScore} />
-          <div className="relative mt-2 grid aspect-square grid-cols-8 overflow-hidden rounded-sm shadow-board">
+          <div className="relative mt-2 grid aspect-square grid-cols-8 grid-rows-8 overflow-hidden rounded-sm shadow-board">
             {ranks.map((r, ri) =>
               files.map((f, fi) => {
                 const sq = `${f}${r}` as Square;
