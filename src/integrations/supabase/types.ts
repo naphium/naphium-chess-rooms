@@ -14,13 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      game_seats: {
+        Row: {
+          black_token: string | null
+          game_id: string
+          white_token: string | null
+        }
+        Insert: {
+          black_token?: string | null
+          game_id: string
+          white_token?: string | null
+        }
+        Update: {
+          black_token?: string | null
+          game_id?: string
+          white_token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_seats_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: true
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      games: {
+        Row: {
+          black_joined: boolean
+          fen: string
+          id: string
+          last_move: Json | null
+          pgn: string
+          updated_at: string
+          white_joined: boolean
+        }
+        Insert: {
+          black_joined?: boolean
+          fen?: string
+          id: string
+          last_move?: Json | null
+          pgn?: string
+          updated_at?: string
+          white_joined?: boolean
+        }
+        Update: {
+          black_joined?: boolean
+          fen?: string
+          id?: string
+          last_move?: Json | null
+          pgn?: string
+          updated_at?: string
+          white_joined?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_game: {
+        Args: { p_id: string; p_token: string }
+        Returns: undefined
+      }
+      join_game: { Args: { p_id: string; p_token: string }; Returns: string }
+      make_move: {
+        Args: {
+          p_fen: string
+          p_id: string
+          p_last: Json
+          p_pgn: string
+          p_prev_fen: string
+          p_token: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
