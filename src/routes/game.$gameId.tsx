@@ -94,7 +94,7 @@ function GamePage() {
     if (game.pgn) next.loadPgn(game.pgn);
     else next.load(game.fen);
     try {
-      next.move({ from, to, promotion });
+      next.move(promotion ? { from, to, promotion } : { from, to });
     } catch {
       return;
     }
@@ -236,7 +236,7 @@ function GamePage() {
           <div className="rounded-lg border border-border bg-card p-5">
             <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">Moves</p>
             <ol className="max-h-64 overflow-auto font-mono text-sm">
-              {chess.history().reduce<string[][]>((a, m, i) => (i % 2 ? a[a.length - 1].push(m) : a.push([m]), a), []).map((pair, i) => (
+              {chess.history().reduce<string[][]>((a, m, i) => (i % 2 ? a[a.length - 1]!.push(m) : a.push([m]), a), []).map((pair, i) => (
                 <li key={i} className="grid grid-cols-[2rem_1fr_1fr]">
                   <span className="text-muted-foreground">{i + 1}.</span><span>{pair[0]}</span><span>{pair[1]}</span>
                 </li>
