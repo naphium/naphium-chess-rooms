@@ -83,7 +83,7 @@ function Index() {
             Live chess with clocks, takebacks, draw offers, chat and rematches. Just pick a name and share the link.
           </p>
           <form onSubmit={join} className="mt-10 flex max-w-sm gap-2">
-            <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Have a code? e.g. abc-123" />
+            <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Have a code? e.g. k7m2p" />
             <Button type="submit" variant="secondary">Join</Button>
           </form>
         </div>
